@@ -1,0 +1,11 @@
+kind: Pod
+apiVersion: v1
+metadata:
+   name: devboard
+   namespace: devboard-ns
+spec:
+   containers:
+     - name: devboard
+       image: ravalabhi1699/e-commerce-website
+       ports:
+        - containerPort: 80
