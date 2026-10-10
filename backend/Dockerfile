@@ -1,4 +1,4 @@
-FROM dhi.io/golang:1-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
@@ -6,21 +6,19 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 go build -o devboard-backend .
+RUN CGO_ENABLED=0 GOOS=linux go build -o devboard-backend .
 
-FROM dhi.io/golang:1-alpine
+FROM alpine:3.20
+
+RUN adduser -D -H -u 10001 appuser \
+    && apk add --no-cache ca-certificates
 
 WORKDIR /app
 
 COPY --from=builder /app/devboard-backend ./devboard-backend
 
-# Ensure binary is executable
-RUN chmod +x ./devboard-backend
-
-# DHI image runs as nonroot by default
-USER nonroot
+USER appuser
 
 EXPOSE 8080
 
-# Use exec form for proper signal handling
 ENTRYPOINT ["./devboard-backend"]
